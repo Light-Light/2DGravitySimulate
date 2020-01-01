@@ -1,14 +1,18 @@
 #include "Display.h"
 #include <cmath>
 
-float TEMP[] = { 0,0,0 };
+namespace TEMP {
+	float tempVertices[] = { 0,0,0 };
+	vec3d buf = { 0,0,0 };
+	vec3d buf1 = { 0,0,0 };
+}
 
 Display::Display(GLFWwindow* _window, Color _defaultDrawColor, Color _clearColor) {
 	window = _window;
 	defaultDrawColor = _defaultDrawColor;
 	clearColor = _clearColor;
 
-	objectsPlaceholder = createObjects(TEMP, 1);
+	objectsPlaceholder = createObjects(TEMP::tempVertices, 1);
 	bind(objectsPlaceholder);
 }
 
@@ -159,17 +163,16 @@ void Display::drawCircle(vec3d center, float r) {
 
 void Display::drawCircle(vec3d center, float r, Color color) {
 	float offset = 0.002;
-	vec3d buf = { 0,0,0 };
-	vec3d buf1 = { 0,0,0 };
 	for (float x = center.x - r; x < center.x + r; x += offset) {
-		float y = sqrt(r * r - pow(x - center.x, 2)) + center.y;
-		float y1 = -sqrt(r * r - pow(x - center.x, 2)) + center.y;
-		buf.x = x;
-		buf.y = y;
-		buf.z = center.z;
-		buf1.x = x;
-		buf1.y = y1;
-		buf.z = center.z;
-		drawLine(buf, buf1, color);
+		float naiveY = sqrt(r * r - pow(x - center.x, 2));
+		float y = naiveY + center.y;
+		float y1 = -naiveY + center.y;
+		TEMP::buf.x = x;
+		TEMP::buf.y = y;
+		TEMP::buf.z = center.z;
+		TEMP::buf1.x = x;
+		TEMP::buf1.y = y1;
+		TEMP::buf.z = center.z;
+		drawLine(TEMP::buf, TEMP::buf1, color);
 	}
 }
