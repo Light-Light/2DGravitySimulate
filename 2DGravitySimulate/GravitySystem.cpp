@@ -1,7 +1,4 @@
 #include "GravitySystem.h"
-#include <map>
-
-using std::vector;
 
 void GravitySystem::addStar(Star* star) {
 	stars.push_back(star);
@@ -29,6 +26,12 @@ void GravitySystem::setCompressNum(float _compressNum) {
 	compressNum = _compressNum;
 }
 
+struct calculated {
+	Star* star;
+	float distance;
+	float force;
+};
+
 namespace TEMP {
 	vec2d vecChange = { 0,0 };
 }
@@ -47,9 +50,9 @@ void GravitySystem::moveAll() {
 			if (star != acting) {
 
 				vec2d actingPos = acting->getPosition();
-				float distance = sqrt(pow(starPos.x - actingPos.x,2) + pow(starPos.y - actingPos.y,2));
 
-				float force = gravity(G,star,acting,distance);
+				float distance = sqrt(pow(starPos.x - actingPos.x, 2) + pow(starPos.y - actingPos.y, 2));
+				float force = gravity(G, star, acting, distance);
 				float acceledSpeed = force / star->getMass();
 
 				if (starPos.x == actingPos.x) {
@@ -66,43 +69,28 @@ void GravitySystem::moveAll() {
 					}
 				}else {
 					float lengthRatio = distance / (distance - acceledSpeed);
+					float xDiff = abs(actingPos.x - starPos.x);
+					float yDiff = abs(actingPos.y - starPos.y);
+					float len = sqrt(xDiff * xDiff + yDiff * yDiff);
+					float sinv = yDiff / len;
+					float cosv = xDiff / len;
 					if (starPos.x < actingPos.x && starPos.y < actingPos.y) {
 
-						float xDiff = actingPos.x - starPos.x;
-						float yDiff = actingPos.y - starPos.y;
-						float len = sqrt(xDiff * xDiff + yDiff * yDiff);
-						float sinv = yDiff / len;
-						float cosv = xDiff / len;
 						TEMP::vecChange.y = acceledSpeed * sinv;
 						TEMP::vecChange.x = acceledSpeed * cosv;
 
 					}else if (starPos.x > actingPos.x && starPos.y > actingPos.y) {
 
-						float xDiff = starPos.x - actingPos.x;
-						float yDiff = starPos.y - actingPos.y;
-						float len = sqrt(xDiff * xDiff + yDiff * yDiff);
-						float sinv = yDiff / len;
-						float cosv = xDiff / len;
 						TEMP::vecChange.y = -acceledSpeed * sinv;
 						TEMP::vecChange.x = -acceledSpeed * cosv;
 
 					}else if (starPos.x < actingPos.x && starPos.y > actingPos.y) {
 
-						float xDiff = actingPos.x - starPos.x;
-						float yDiff = starPos.y - actingPos.y;
-						float len = sqrt(xDiff * xDiff + yDiff * yDiff);
-						float sinv = yDiff / len;
-						float cosv = xDiff / len;
 						TEMP::vecChange.y = -acceledSpeed * sinv;
 						TEMP::vecChange.x = acceledSpeed * cosv;
 
 					}else if (starPos.x > actingPos.x && starPos.y < actingPos.y) {
 
-						float xDiff = starPos.x - actingPos.x;
-						float yDiff = actingPos.y - starPos.y;
-						float len = sqrt(xDiff * xDiff + yDiff * yDiff);
-						float sinv = yDiff / len;
-						float cosv = xDiff / len;
 						TEMP::vecChange.y = acceledSpeed * sinv;
 						TEMP::vecChange.x = -acceledSpeed * cosv;
 
